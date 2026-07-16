@@ -213,14 +213,15 @@
         prizes: [
             { text: "奶茶一杯", sub: "待领取", icon: "🥤" },
             { text: "iPhone 17 pro max 1TB", sub: "请自行购买", icon: "📱" },
-            { text: "谢谢参与", sub: "下次一定中", icon: "😅" },
+            { text: "零食一份", sub: "待领取", icon: "🍿" },
+            { text: "水果一份", sub: "待领取", icon: "🍇" },
             { text: "神秘代码", sub: "037589", icon: "🎫" },
             { text: "再来一次", sub: "机会难得", icon: "🔄" }
         ],
         coverColor: '#CCCCCC', // 刮刮层颜色
         coverText: '刮一刮',   // 刮刮层文字
         brushSize: 25,         // 笔刷大小
-        clearThreshold: 0.4    // 刮开多少比例算完成 (0.4 = 40%)
+        clearThreshold: 0.5    // 刮开多少比例算完成 (0.5 = 50%)
     };
 
     /**
@@ -399,8 +400,8 @@
         const title = document.getElementById('modalTitle');
         const msg = document.getElementById('modalPrizeText');
         
-        if (prize.text.includes("谢谢") || prize.text.includes("未中")) {
-            title.innerText = "很遗憾";
+        if (prize.text.includes("可惜") || prize.text.includes("未中")) {
+            title.innerText = "那没法";
             title.style.color = "#666";
         } else {
             title.innerText = "🎉 恭喜中奖！";
