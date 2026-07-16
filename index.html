@@ -5,71 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>幸运刮刮乐</title>
     <style>
-        * {
-            盒模型: border-box;
-            外边距: 0;
-            内边距: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        正文 {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            背景颜色: #f0f2f5;
-            显示方式: 弹性盒子;
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            最小高度: 100视口高度;
-            溢出: 隐藏; /* 防止页面滚动 */
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .容器 {
-            定位: 相对;
-            宽度: 300像素;
-            高度: 150px;
-            边框半径: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            溢出: 隐藏;
-            背景: #fff;
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
         }
 
-        /* 底层：奖品内容 */
-        .奖品层 {
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #d63031;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* 刮刮卡容器 */
+        .card-container {
+            position: relative;
+            width: 300px;
+            height: 150px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background: #fff;
+            /* 防止用户选中文字 */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* 奖品层 */
+        .prize-layer {
             position: absolute;
             top: 0;
             left: 0;
-            宽度: 100%;
+            width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 1;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-            color: #d63031;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+            border: 2px solid #ffcccc;
+            box-sizing: border-box;
+        }
+
+        .prize-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
         }
 
         .prize-text {
-            font-size: 24px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #d63031;
             margin-bottom: 5px;
         }
 
         .prize-sub {
-            font-size: 14px;
-            color: #555;
+            font-size: 12px;
+            color: #888;
         }
 
-        /* 顶层：刮刮层 */
+        /* 画布层 */
         canvas {
             position: absolute;
             top: 0;
             left: 0;
             z-index: 2;
             cursor: pointer;
-            touch-action: none; /* 关键：阻止触摸时的默认滚动行为 */
+            /* 关键：阻止触摸默认行为，防止页面滚动 */
+            touch-action: none; 
         }
 
         .controls {
@@ -77,74 +100,105 @@
             text-align: center;
         }
 
-        button {
+        .btn-reset {
             background-color: #07c160; /* 微信绿 */
             color: white;
             border: none;
-            padding: 10px 25px;
+            padding: 12px 30px;
             border-radius: 25px;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
+            box-shadow: 0 4px 10px rgba(7, 193, 96, 0.3);
+            transition: all 0.2s;
         }
 
-        button:active {
+        .btn-reset:active {
             transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(7, 193, 96, 0.3);
         }
 
-        .tip {
-            margin-top: 15px;
-            color: #888;
-            font-size: 12px;
-        }
-        
-        /* 简单的弹窗样式 */
-        .modal {
+        /* 弹窗样式 */
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             z-index: 100;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(2px);
         }
+
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 15px;
             width: 80%;
-            max-width: 300px;
+            max-width: 320px;
             text-align: center;
+            animation: popIn 0.3s ease-out;
         }
-        .modal h3 { margin-bottom: 10px; color: #d63031; }
-        .modal p { margin-bottom: 20px; color: #333; }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .modal-prize {
+            font-size: 24px;
+            color: #d63031;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .modal-btn {
+            background-color: #07c160;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <!-- 刮刮卡容器 -->
-    <div class="container" id="cardContainer">
+    <div class="header">
+        <h1>🎉 幸运刮刮乐</h1>
+        <p>手指涂抹灰色区域，赢取大奖</p>
+    </div>
+
+    <div class="card-container" id="cardContainer">
         <!-- 奖品层 -->
         <div class="prize-layer" id="prizeLayer">
+            <div class="prize-icon" id="prizeIcon">🎁</div>
             <div class="prize-text" id="prizeText">加载中...</div>
-            <div class="prize-sub">恭喜获得以上奖励</div>
+            <div class="prize-sub" id="prizeSub">祝你好运</div>
         </div>
         <!-- 画布层 -->
         <canvas id="scratchCanvas"></canvas>
     </div>
 
     <div class="controls">
-        <button onclick="resetCard()">再刮一次</button>
-        <p class="tip">手指涂抹灰色区域即可刮开</p>
+        <button class="btn-reset" onclick="resetCard()">再玩一次</button>
     </div>
 
     <!-- 结果弹窗 -->
-    <div class="modal" id="resultModal">
+    <div class="modal-overlay" id="resultModal">
         <div class="modal-content">
-            <h3 id="modalTitle">恭喜！</h3>
-            <p id="modalMsg">你获得了大奖</p>
-            <button onclick="closeModal()">确定</button>
+            <div class="modal-title" id="modalTitle">恭喜中奖！</div>
+            <div class="modal-prize" id="modalPrizeText">¥88 红包</div>
+            <button class="modal-btn" onclick="closeModal()">开心收下</button>
         </div>
     </div>
 
@@ -155,20 +209,23 @@
      * ==========================================
      */
     const CONFIG = {
-        // 奖品列表，可以添加多个，程序会随机抽取一个
+        // 奖品列表：text是主要文字，sub是副标题，icon是表情符号
         prizes: [
-            { text: "谢谢参与", sub: "下次好运" },
-             { text: "神秘数字", sub: "123456789" }
+            { text: "奶茶一杯", sub: "待领取", icon: "🥤" },
+            { text: "iPhone 17 pro max 1TB", sub: "请自行购买", icon: "📱" },
+            { text: "谢谢参与", sub: "下次一定中", icon: "😅" },
+            { text: "神秘代码", sub: "037589", icon: "🎫" },
+            { text: "再来一次", sub: "机会难得", icon: "🔄" }
         ],
         coverColor: '#CCCCCC', // 刮刮层颜色
         coverText: '刮一刮',   // 刮刮层文字
-        brushSize: 20,         // 笔刷大小
-        clearThreshold: 0.5    // 刮开多少比例算完成 (0.5 = 50%)
+        brushSize: 25,         // 笔刷大小
+        clearThreshold: 0.4    // 刮开多少比例算完成 (0.4 = 40%)
     };
 
     /**
      * ==========================================
-     *  💻 核心逻辑代码 (通常不需要修改)
+     *  💻 核心逻辑代码
      * ==========================================
      */
     
@@ -176,7 +233,8 @@
     const ctx = canvas.getContext('2d');
     const container = document.getElementById('cardContainer');
     const prizeTextEl = document.getElementById('prizeText');
-    const prizeSubEl = document.querySelector('.prize-sub');
+    const prizeSubEl = document.getElementById('prizeSub');
+    const prizeIconEl = document.getElementById('prizeIcon');
     
     let isDrawing = false;
     let lastPoint = null;
@@ -184,19 +242,26 @@
 
     // 初始化
     function init() {
-        // 设置画布尺寸与容器一致
+        // 设置画布尺寸
         const width = container.offsetWidth;
         const height = container.offsetHeight;
-        canvas.width = width;
-        canvas.height = height;
+        
+        // 处理高清屏模糊问题
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        ctx.scale(dpr, dpr);
 
         // 随机选择一个奖品
         const randomPrize = CONFIG.prizes[Math.floor(Math.random() * CONFIG.prizes.length)];
         prizeTextEl.innerText = randomPrize.text;
         prizeSubEl.innerText = randomPrize.sub;
+        prizeIconEl.innerText = randomPrize.icon;
         
         // 存储当前奖品用于弹窗
-        canvas.dataset.prize = randomPrize.text;
+        canvas.dataset.currentPrize = JSON.stringify(randomPrize);
 
         drawCover();
         bindEvents();
@@ -206,19 +271,19 @@
     function drawCover() {
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = CONFIG.coverColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
 
         // 绘制提示文字
-        ctx.font = 'bold 24px Arial';
+        ctx.font = 'bold 20px Arial';
         ctx.fillStyle = '#999';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(CONFIG.coverText, canvas.width / 2, canvas.height / 2);
+        ctx.fillText(CONFIG.coverText, canvas.width / 2 / (window.devicePixelRatio || 1), canvas.height / 2 / (window.devicePixelRatio || 1));
         
         isRevealed = false;
     }
 
-    // 绑定事件 (支持鼠标和触摸)
+    // 绑定事件
     function bindEvents() {
         // 鼠标事件
         canvas.addEventListener('mousedown', startDraw);
@@ -228,12 +293,12 @@
 
         // 触摸事件 (微信端主要用这个)
         canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // 防止滚动
+            e.preventDefault(); 
             startDraw(e.touches[0]);
         }, { passive: false });
         
         canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault(); // 防止滚动
+            e.preventDefault(); 
             drawing(e.touches[0]);
         }, { passive: false });
         
@@ -258,9 +323,7 @@
         if (!isDrawing || isRevealed) return;
         
         const currentPoint = getPos(e);
-        const dist = distance(lastPoint, currentPoint);
         
-        // 使用 destination-out 模式擦除
         ctx.globalCompositeOperation = 'destination-out';
         ctx.lineWidth = CONFIG.brushSize;
         ctx.lineCap = 'round';
@@ -273,7 +336,7 @@
         
         lastPoint = currentPoint;
         
-        // 节流检查进度，避免每帧都计算像素，影响性能
+        // 节流检查进度
         if (Math.random() > 0.8) { 
             checkPercentage();
         }
@@ -282,71 +345,78 @@
     function endDraw() {
         isDrawing = false;
         lastPoint = null;
-        checkPercentage(); // 结束时强制检查一次
-    }
-
-    function distance(p1, p2) {
-        返回 Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+        checkPercentage();
     }
 
     // 检查刮开比例
     function checkPercentage() {
-        如果 (已揭示) 返回;
+        if (isRevealed) return;
 
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        // 获取图像数据需要考虑到缩放
+        const w = canvas.width;
+        const h = canvas.height;
+        const imageData = ctx.getImageData(0, 0, w, h);
         const pixels = imageData.data;
         let transparentPixels = 0;
         
         // 遍历像素，alpha通道为0表示透明
         for (let i = 3; i < pixels.length; i += 4) {
             if (pixels[i] === 0) {
-                透明像素++;
+                transparentPixels++;
             }
         }
         
         const percentage = transparentPixels / (pixels.length / 4);
         
-        如果 (百分比 > CONFIG.清除阈值) {
-            揭示所有();
+        if (percentage > CONFIG.clearThreshold) {
+            revealAll();
         }
     }
 
     // 完全揭示
-    函数 revealAll() {
+    function revealAll() {
         isRevealed = true;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        showModal(canvas.dataset.prize);
+        const prize = JSON.parse(canvas.dataset.currentPrize);
+        showModal(prize);
     }
 
     // 重置
     window.resetCard = function() {
         drawCover();
+        document.getElementById('resultModal').style.display = 'none';
+        // 重新随机奖品
+        const randomPrize = CONFIG.prizes[Math.floor(Math.random() * CONFIG.prizes.length)];
+        prizeTextEl.innerText = randomPrize.text;
+        prizeSubEl.innerText = randomPrize.sub;
+        prizeIconEl.innerText = randomPrize.icon;
+        canvas.dataset.currentPrize = JSON.stringify(randomPrize);
     }
 
     // 弹窗逻辑
-    函数 showModal(奖品) {
-        常量 modal = 文档.getElementById('resultModal');
+    function showModal(prize) {
+        const modal = document.getElementById('resultModal');
         const title = document.getElementById('modalTitle');
-        const msg = document.getElementById('modalMsg');
+        const msg = document.getElementById('modalPrizeText');
         
-        if (prize.includes("谢谢") || prize.includes("未中")) {
+        if (prize.text.includes("谢谢") || prize.text.includes("未中")) {
             title.innerText = "很遗憾";
             title.style.color = "#666";
         } else {
             title.innerText = "🎉 恭喜中奖！";
-            标题.样式.颜色 = "#d63031";
+            title.style.color = "#d63031";
         }
-        消息.innerText = `你获得了：${奖品}`;
+        msg.innerText = prize.text;
         modal.style.display = 'flex';
     }
 
     window.closeModal = function() {
-        文档.getElementById('resultModal').样式.显示 = '无';
+        document.getElementById('resultModal').style.display = 'none';
     }
 
     // 启动
     init();
 
 </script>
-</正文>
+</body>
 </html>
